@@ -18,17 +18,23 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                // Push Docker image to Docker Hub
-                sh 'docker push gasiey/cw2-server:1.0'
+                // Login to Docker Hub using Jenkins credentials
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push gasiey/cw2-server:1.0
+                    '''
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
                 // Apply Kubernetes YAML for deployment
-                sh 'kubectl apply -f kubernetes/deployment.yaml'
+                sh 'kubectl apply -f deployment.yaml'
             }
         }
     }
 }
+
 
