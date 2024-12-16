@@ -1,38 +1,39 @@
 pipeline {
     agent any
-
+    triggers {
+        pollSCM('H/5 * * * *') // Poll GitHub for changes every 5 minutes
+    }
+    environment {
+        DOCKER_IMAGE = 'gasiey/cw2-server:1.0'
+    }
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                // Pull the repository's content
-                git branch: 'main', url: 'https://github.com/Gasiey/cw2-project.git'
+                echo 'Cloning the repository...'
+                git url: 'https://github.com/Gasiey/cw2-project.git', branch: 'main'
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                // Build Docker image with your tag
-                sh 'docker build -t gasiey/cw2-server:1.0 .'
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                // Login to Docker Hub using Jenkins credentials
-                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push gasiey/cw2-server:1.0
-                    '''
+                echo 'Building Docker image...'
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
-
-        stage('Deploy to Kubernetes') {
+        stage('Verify Docker Image') {
             steps {
-                // Apply Kubernetes YAML for deployment
-                sh 'kubectl apply -f deployment.yaml'
+                echo 'Verifying Docker image...'
+                sh 'docker images | grep cw2-server'
             }
+        }
+    }
+    post {
+        success {
+            echo 'Docker build completed successfully.'
+        }
+        failure {
+            echo 'Docker build failed.'
         }
     }
 }
