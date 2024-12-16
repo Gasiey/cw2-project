@@ -58,7 +58,6 @@ pipeline {
 	        sh "docker push gasiey/cw2-server:1.0"
 	    }
 	}
-    }
 
 	stage('Deploy to Kubernetes') {
             steps {
@@ -79,4 +78,3 @@ pipeline {
             echo 'Pipeline failed. Check the logs for errors.'
         }
     }
-}
