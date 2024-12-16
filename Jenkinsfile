@@ -48,6 +48,15 @@ pipeline {
                 }
             }
         }
+	
+	stage('Push to DockerHub') {
+	    steps {
+		echo 'Pushing Docker image to DockerHub...'
+		sh "docker login -u gasiey -p 1Q2w3e4r5t"
+	        sh "docker tag ${DOCKER_IMAGE} gasiey/cw2-server:1.0"
+	        sh "docker push gasiey/cw2-server:1.0"
+	    }
+	}
     }
 
     post {
