@@ -41,7 +41,10 @@ pipeline {
                     
                     echo 'Verifying that the container is running...'
                     docker ps | grep ${CONTAINER_NAME}
-                    
+
+		    echo 'Waiting for the container to start...'
+	            sh "sleep 10"  // Add a 10-second delay                    
+
                     echo 'Testing the application endpoint...'
                     curl --fail http://localhost:9090 || exit 1
                     """
