@@ -60,6 +60,17 @@ pipeline {
 	}
     }
 
+	stage('Deploy to Kubernetes') {
+            steps {
+                sshagent(['jenkins-ssh']) {
+                    echo 'Transferring Kubernetes configuration...'
+                    sh 'scp /home/ubuntu/app.yaml ubuntu@54.163.198.33:/tmp/app.yaml'
+                    echo 'Deploying application to Kubernetes...'
+                    sh 'ssh ubuntu@54.163.198.33 kubectl apply -f /tmp/app.yaml'
+                }
+            }
+        }
+    }
     post {
         success {
             echo 'Pipeline completed successfully!'
