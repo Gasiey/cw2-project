@@ -32,10 +32,10 @@ pipeline {
 	    steps {
 	        echo 'Running Docker container...'
 	        script {
-	            # Remove any existing container with the same name
+	            // Remove any existing container with the same name
 	            sh "docker rm -f ${CONTAINER_NAME} || true"
 
-	            # Run the container
+	            // Run the container
 	            sh "docker run -d -p 9090:8080 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}"
 
 	            echo 'Verifying that the container is running...'
