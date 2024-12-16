@@ -28,29 +28,27 @@ pipeline {
             }
         }
 
-        stage('Run and Verify Container') {
-            steps {
-                echo 'Running Docker container...'
-                script {
-                    sh """
-                    # Remove any existing container with the same name
-                    docker rm -f ${CONTAINER_NAME} || true
-                    
-                    # Run the container
-                    docker run -d -p 9090:8080 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}
-                    
-                    echo 'Verifying that the container is running...'
-                    docker ps | grep ${CONTAINER_NAME}
+	stage('Run and Verify Container') {
+	    steps {
+	        echo 'Running Docker container...'
+	        script {
+	            # Remove any existing container with the same name
+	            sh "docker rm -f ${CONTAINER_NAME} || true"
 
-		    echo 'Waiting for the container to start...'
-	            sh "sleep 10"  // Add a 10-second delay                    
+	            # Run the container
+	            sh "docker run -d -p 9090:8080 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}"
 
-                    echo 'Testing the application endpoint...'
-                    curl --fail http://localhost:9090 || exit 1
-                    """
-                }
-            }
-        }
+	            echo 'Verifying that the container is running...'
+	            sh "docker ps | grep ${CONTAINER_NAME}"
+
+	            echo 'Waiting for the container to start...'
+	            sh "sleep 10" // Add a 10-second delay
+
+	            echo 'Testing the application endpoint...'
+	            sh "curl --fail http://localhost:9090 || exit 1"
+	        }
+	    }
+	}
 	
 	stage('Push to DockerHub') {
 	    steps {
